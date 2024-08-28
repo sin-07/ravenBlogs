@@ -1,13 +1,32 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AiFillHome } from "react-icons/ai";
 import { MdAccountCircle, MdDelete, MdEdit } from "react-icons/md";
 import BlogCard from "../Components/BlogCard";
+import { getBlogById } from "../helpers/getBlogById";
+import BlogContext from "../context/BlogContext";
+import { getBlogs } from "../helpers/getBlogs";
+import { convertDate } from "../helpers/convertDate";
 
 const Blog = () => {
   const { id } = useParams();
-  const [userAuth, setUserAuth] = useState(false);
+  const [blog, setBlog] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const { userAuth, setUserAuth } = useContext(BlogContext);
+
+  useEffect(() => {
+    getBlogById(id)
+      .then((data) => setBlog(data))
+      .catch((err) => console.log(err.message));
+  }, []);
+
+  useEffect(() => {
+    getBlogs()
+      .then((data) => setBlogs(data))
+      .catch((err) => console.log(err.message));
+  });
+
   return (
     <>
       <section>
@@ -18,40 +37,31 @@ const Blog = () => {
           >
             <AiFillHome /> <span>Home</span>
           </Link>
-          /<span className="cursor-pointer">Education system scam</span>
+          /<span className="cursor-pointer">{blog.title}</span>
         </nav>
 
         <div className="flex mx-5 gap-3 md:gap-5 flex-col md:flex-row">
           <div className="w-full md:w-[60vw] bg-white mx-auto p-5 rounded-lg my-10">
-            <h1 className="text-4xl font-bold my-5">Education</h1>
+            <h1 className="text-4xl font-bold my-5">{blog.title}</h1>
             <img
-              src="/img.jpg"
+              src={blog.thumbnail}
               alt=""
               className="w-full h-[40vh] object-cover rounded-2xl shadow-md"
             />
-            <div className="flex gap-2 my-5">
-              <span className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white rounded-full font-semibold shadow-md capitalize">
-                Programming
-              </span>
+            <div className="flex ga-2 my-5">
+              {blog.tags?.map((tag, i) => (
+                <span className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white rounded-full font-semibold shadow-md capitalize">
+                  Programming
+                </span>
+              ))}
               <span className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white rounded-full font-semibold shadow-md capitalize">
                 Coding
               </span>
             </div>
             <hr />
             <div className="my-5">
-              <p className="overflow-x-clip">
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                Similique impedit fuga quisquam in mollitia unde autem sunt non,
-                voluptates rem commodi iste eveniet a qui nobis? Ipsa iste ab
-                nesciunt, repellendus atque amet recusandae quos suscipit
-                necessitatibus voluptate aspernatur, beatae reprehenderit saepe
-                tenetur! Soluta unde fuga porro dolor voluptatem tempora saepe
-                nulla sint ad quaerat nemo alias commodi sapiente vel illum
-                provident, corporis id ea reiciendis accusantium veniam. Veniam
-                expedita similique ea id laborum unde repellendus nulla iusto
-                provident fugiat error incidunt sit enim atque accusantium sed,
-                cupiditate architecto minus veritatis in itaque nihil culpa
-                voluptatem? Porro excepturi velit perspiciatis?
+              <p className="overflow-x-clip" dangerouslySetInnerHTML={{__html:blog.content}}>
+                
               </p>
             </div>
             <div className="flex justify-start items-center gap-3 text-base">
@@ -61,8 +71,8 @@ const Blog = () => {
                 className="rounded-full w-[40px] h-[40px]"
               />
               <div>
-                <h4 className="font-bold">Coding</h4>
-                <p className="font-bold">26/06/2024</p>
+                <h4 className="font-bold">{blog.author}</h4>
+                <p className="font-bold">{convertDate(blog.createdAt)}</p>
               </div>
             </div>
           </div>
@@ -71,11 +81,11 @@ const Blog = () => {
               More Blog
             </h3>
             <div className=" grid grid-cols-1 gap-2 md:h-[80vh] md:overflow-y-scroll md:py-2 md:pb-2 scroll-hide my-3">
-              <BlogCard />
-              <BlogCard />
-              <BlogCard />
-              <BlogCard />
-              <BlogCard />
+              {
+                blogs.map((blog)=>(
+                  <BlogCard key={blog._id} {...blog} />
+                ))
+              }
             </div>
 
             <h3 className="text-3xl text-gray-600 ml-3">Comment</h3>
@@ -111,22 +121,28 @@ const Blog = () => {
 
               <div>
                 <div className="flex flex-col md:flex-row justify-start items-center md:gap-3 my-3">
-                  <img src="/logo.jpg" alt="" className="rounded-full hidden md:block w-[50px] text-gray-600"/>
+                  <img
+                    src="/logo.jpg"
+                    alt=""
+                    className="rounded-full hidden md:block w-[50px] text-gray-600"
+                  />
                   <div className="bg-white w-fullmd:w-[35vw] rounded-lg py-2 text-sm px-3 shadow-md">
                     <div className="flex justify-between">
-                      <span className="text-xs font-bold md:text-sm">
-                        yeti
-                      </span>
+                      <span className="text-xs font-bold md:text-sm">yeti</span>
                       <div className="flex gap-1 ">
-                        <MdEdit className="text-gray-500 hover:text-purple-500 transition-all ease-in-out cursor-pointer hover:scale-105"/>
-                        <MdDelete className="text-gray-500 hover:text-purple-500 transition-all ease-in-out cursor-pointer hover:scale-105"/>
+                        <MdEdit className="text-gray-500 hover:text-purple-500 transition-all ease-in-out cursor-pointer hover:scale-105" />
+                        <MdDelete className="text-gray-500 hover:text-purple-500 transition-all ease-in-out cursor-pointer hover:scale-105" />
                       </div>
                     </div>
-                    <p className={`outline-none bg-gray-100 shadow-inner rounded-md my-2 transition-all duration-500 ease-in-out`}>
+                    <p
+                      className={`outline-none bg-gray-100 shadow-inner rounded-md my-2 transition-all duration-500 ease-in-out`}
+                    >
                       Lorem ipsum dolor sit amet consectetur adipisicing elit.
                       Quos, voluptates.
                     </p>
-                    <button className="bg-purple-500 hover:bg-purple-600 px-3 py-1 text-sm text-white rounded-lg">Save</button>
+                    <button className="bg-purple-500 hover:bg-purple-600 px-3 py-1 text-sm text-white rounded-lg">
+                      Save
+                    </button>
                   </div>
                 </div>
               </div>

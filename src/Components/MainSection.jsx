@@ -35,7 +35,7 @@ const MainSection = () => {
             ))}
           </div>
           <Link
-            to={`/blog/1234`}
+            to={`/blog/${blogs[0]?._id}`}
             className="px-8 py-2 md:text-xl text-sm bg-white rounded-xl w-fit text-blue-500 font-semibold"
           >
             Read Now
@@ -44,7 +44,7 @@ const MainSection = () => {
 
         <div>
           <img
-            src="/img.jpg"
+            src={blogs[0]?.thumbnail}
             alt="study"
             className="md:w-[40vw] w-[75vw] mt-14 md:mt0 mt rounded-3xl shadow-2xl"
           />
